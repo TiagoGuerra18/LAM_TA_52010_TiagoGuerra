@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ex_title">Explorer · Previsão semanal</string>
+    <string name="ex_open">Explorer — Previsão semanal</string>
+    <string name="ex_greeting">Olá, %1$s</string>
+    <string name="ex_location">%1$s · próximos %2$d dias</string>
+    <string name="ex_success">Previsão atualizada</string>
+    <string name="ex_empty">O servidor não devolveu previsões.</string>
+    <string name="ex_cancelled">Pedido cancelado. Os dados anteriores foram mantidos.</string>
+    <string name="ex_idle">Pronto para consultar a previsão</string>
+    <string name="ex_unavailable">—</string>
+    <string name="ex_temperature">%1$.1f %2$s</string>
+    <string name="unit_celsius">°C</string>
+    <string name="unit_fahrenheit">°F</string>
+    <string name="ex_percentage">%1$.0f%%</string>
+    <string name="ex_daily_temperature">Máx. %1$s  ·  Mín. %2$s</string>
+    <string name="ex_rain">Chuva: %1$s</string>
+    <string name="ex_favorite_cd">Dia favorito</string>
+    <string name="ex_cancel">Cancelar</string>
+    <string name="ex_choose_place">Local</string>
+    <string name="place_porto">Porto</string>
+    <string name="place_lisbon">Lisboa</string>
+    <string name="place_faro">Faro</string>
+    <string name="ex_attribution">Dados: Open-Meteo · Hora de Lisboa</string>
+    <string name="ex_battery_low">Bateria fraca — atualização automática suspensa</string>
+    <string name="ex_detail_title">Previsão por hora</string>
+    <string name="ex_detail_heading">%1$s · %2$s</string>
+    <string name="ex_hour_row">%1$s  ·  %2$s  ·  chuva %3$s</string>
+    <string name="ex_hour_warning">Acima do limiar de chuva</string>
+    <string name="ex_detail_hint">Escolhe um dia para ver as 24 horas.</string>
+    <string name="ex_add_favorite">Marcar favorito</string>
+    <string name="ex_remove_favorite">Desmarcar favorito</string>
+    <string name="ex_remove_title">Remover favorito?</string>
+    <string name="ex_remove_message">Queres remover este dia dos favoritos?</string>
+    <string name="ex_favorite_added">Dia marcado como favorito</string>
+    <string name="ex_favorite_removed">Favorito removido</string>
+    <string name="ex_keep">Manter</string>
+    <string name="ex_remove">Remover</string>
+    <string name="ex_retry">Tentar novamente</string>
+    <string name="ex_settings_title">Definições</string>
+    <string name="ex_unit_label">Unidade de temperatura</string>
+    <string name="ex_days_label">Número de dias</string>
+    <string name="ex_days_3">3 dias</string>
+    <string name="ex_days_5">5 dias</string>
+    <string name="ex_days_7">7 dias</string>
+    <string name="ex_highlight_label">Destacar horas acima do limiar de chuva</string>
+    <string name="ex_threshold_label">Limiar de chuva (0–100%)</string>
+    <string name="ex_interval_label">Atualização automática (15–3600 segundos)</string>
+    <string name="ex_save">Guardar definições</string>
+    <string name="ex_settings_saved">Definições aplicadas</string>
+    <string name="ex_invalid_threshold">Introduz um número inteiro entre 0 e 100</string>
+    <string name="ex_invalid_interval">Introduz um número inteiro entre 15 e 3600</string>
+    <string name="ex_compare_title">Comparar cidades</string>
+    <string name="ex_compare_today">Previsão de hoje · três pedidos em paralelo</string>
+    <string name="ex_compare">Comparar</string>
+    <string name="ex_compare_success">Dados recebidos</string>
+    <string name="ex_compare_values">Máxima
+%1$s
+
+Mínima
+%2$s
+
+Chuva
+%3$s</string>
+    <string name="ex_debug_http">Simular erro HTTP (debug)</string>
+    <string name="ex_debug_compare">Comparar com falha em Faro (debug)</string>
+    <string name="ex_debug_partial">Simulação: Faro usa um endereço inválido</string>
+    <string name="ex_settings_cancel">Cancelar alterações</string>
+    <string name="ex_minimum">Mínima</string>
+    <string name="ex_maximum">Máxima</string>
+</resources>

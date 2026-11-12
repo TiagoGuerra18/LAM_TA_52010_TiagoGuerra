@@ -31,6 +31,7 @@
             android:label="@string/timetable_label"
             android:parentActivityName=".MainActivity" />
     <activity android:name=".WeatherActivity" android:exported="false" android:label="@string/weather_label" android:parentActivityName=".MainActivity" />
+    <activity android:name=".ExplorerActivity" android:exported="false" android:label="@string/ex_title" android:parentActivityName=".MainActivity" />
 </application>
 
 </manifest>

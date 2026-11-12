@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     Button btnOpenWeather = findViewById(R.id.btnOpenWeather);
     btnOpenTimetable.setOnClickListener(v -> openWith(TimetableActivity.class));
     btnOpenWeather.setOnClickListener(v -> openWith(WeatherActivity.class));
+    findViewById(R.id.btnOpenExplorer).setOnClickListener(v -> openWith(ExplorerActivity.class));
   }
 
   // Valida o nome e abre o ecrã escolhido.

@@ -1,0 +1,8 @@
+<resources>
+<color name="ex_icon_sun">#FFD078</color>
+<color name="ex_icon_cloud">#B3CEE0</color>
+<color name="ex_icon_rain">#7BD0FF</color>
+<color name="ex_icon_storm">#CBB2FF</color>
+<color name="ex_warning">#473918</color>
+<color name="ex_warning_text">#FFE3A3</color>
+</resources>

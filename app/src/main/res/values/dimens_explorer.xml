@@ -1,0 +1,9 @@
+<resources>
+<dimen name="ex_row_padding">12dp</dimen>
+<dimen name="ex_icon">40dp</dimen>
+<dimen name="ex_star">24dp</dimen>
+<dimen name="ex_title_size">22sp</dimen>
+<dimen name="ex_body_size">16sp</dimen>
+<dimen name="ex_caption_size">13sp</dimen>
+<dimen name="ex_card_radius">16dp</dimen>
+</resources>

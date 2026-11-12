@@ -1,0 +1,1 @@
+<layoutAnimation xmlns:android="http://schemas.android.com/apk/res/android" android:animation="@anim/item_enter" android:delay="12%" android:animationOrder="normal"/>
