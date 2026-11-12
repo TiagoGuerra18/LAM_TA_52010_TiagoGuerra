@@ -1,0 +1,14 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:fitsSystemWindows="true" android:orientation="vertical" android:padding="@dimen/spacing_s">
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/ex_compare_today" android:textSize="@dimen/ex_body_size" android:accessibilityHeading="true"/>
+    <TextView android:id="@+id/compareDebugWarning" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/ex_debug_partial" android:background="@color/ex_warning" android:textColor="@color/ex_warning_text" android:padding="@dimen/spacing_s" android:visibility="gone"/>
+    <TextView android:id="@+id/compareStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:accessibilityLiveRegion="polite"/>
+    <ProgressBar android:id="@+id/compareProgress" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:indeterminate="true" android:contentDescription="@string/cd_weather_progress"/>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+        <Button android:id="@+id/compareRefresh" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/menu_refresh" android:minHeight="@dimen/touch_target"/>
+        <Button android:id="@+id/compareCancel" style="?attr/materialButtonOutlinedStyle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/ex_cancel" android:minHeight="@dimen/touch_target"/>
+    </LinearLayout>
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
+        <LinearLayout android:id="@+id/comparisonColumns" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false"/>
+    </ScrollView>
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/ex_attribution" android:textSize="@dimen/ex_caption_size" android:gravity="center"/>
+</LinearLayout>

@@ -13,6 +13,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.Callable;
+import pt.upt.studenthub.ExplorerModels.Comparison;
 import pt.upt.studenthub.ExplorerModels.DayForecast;
 import pt.upt.studenthub.ExplorerModels.HourForecast;
 import pt.upt.studenthub.ExplorerModels.Place;
@@ -23,6 +25,12 @@ import pt.upt.studenthub.ExplorerState.Status;
 public class ExplorerViewModel extends ViewModel {
     private final ExecutorService listExecutor = Executors.newSingleThreadExecutor();
     private final ExecutorService detailExecutor = Executors.newSingleThreadExecutor();
+    private final ExecutorService comparisonPool = Executors.newFixedThreadPool(3);
+    private final ExecutorService comparisonCoordinator = Executors.newSingleThreadExecutor();
+    private final MutableLiveData<ExplorerState<List<Comparison>>> comparison =
+            new MutableLiveData<>(ExplorerState.of(Status.IDLE, Collections.emptyList()));
+    private Future<?> comparisonTask;
+    private int comparisonGeneration;
     private final Handler main = new Handler(Looper.getMainLooper());
     private final MutableLiveData<ExplorerState<List<DayForecast>>> days =
             new MutableLiveData<>(ExplorerState.of(Status.IDLE, Collections.emptyList()));
@@ -42,6 +50,8 @@ public class ExplorerViewModel extends ViewModel {
     public LiveData<ExplorerState<List<DayForecast>>> days() { return days; }
     /** Observable hourly data for the selected date. */
     public LiveData<ExplorerState<List<HourForecast>>> hours() { return hours; }
+    /** Combined snapshot that preserves each location's individual result. */
+    public LiveData<ExplorerState<List<Comparison>>> comparison() { return comparison; }
     /** Revision signal for adapters; the mutable favorite set is never exposed. */
     public LiveData<Integer> favoriteVersion() { return favoriteVersion; }
     /** Current validated settings. */
@@ -136,6 +146,59 @@ public class ExplorerViewModel extends ViewModel {
         if (saved != null) favorites.addAll(saved);
     }
 
+    /** Executes three requests concurrently; invokeAll also cancels children if interrupted. */
+    public void loadComparison(boolean online, boolean failFaro) {
+        if (comparison.getValue().status == Status.LOADING) return;
+        final int generation = ++comparisonGeneration;
+        final List<Comparison> previous = comparison.getValue().data;
+        if (!online) {
+            List<Comparison> offline = new ArrayList<>();
+            for (Place location : Place.values()) offline.add(new Comparison(location, ExplorerState.offline(null)));
+            comparison.setValue(ExplorerState.of(Status.ERROR, Collections.unmodifiableList(offline)));
+            return;
+        }
+        comparison.setValue(ExplorerState.of(Status.LOADING, previous));
+        final Settings requestedSettings = settings;
+        comparisonTask = comparisonCoordinator.submit(() -> {
+            List<Callable<Comparison>> jobs = new ArrayList<>();
+            for (Place location : Place.values()) jobs.add(() -> {
+                try {
+                    List<DayForecast> values = ExplorerParser.daily(HttpClient.get(
+                            ExplorerApi.comparison(location, requestedSettings, failFaro && location == Place.FARO)));
+                    return new Comparison(location, ExplorerState.of(values.isEmpty() ? Status.EMPTY : Status.SUCCESS,
+                            values.isEmpty() ? null : values.get(0)));
+                } catch (Exception exception) {
+                    return new Comparison(location, ExplorerState.failed(null, exception));
+                }
+            });
+            try {
+                List<Future<Comparison>> futures = comparisonPool.invokeAll(jobs);
+                List<Comparison> results = new ArrayList<>();
+                for (Future<Comparison> future : futures) results.add(future.get());
+                List<Comparison> snapshot = Collections.unmodifiableList(results);
+                main.post(() -> {
+                    if (generation == comparisonGeneration)
+                        comparison.setValue(ExplorerState.of(Status.SUCCESS, snapshot));
+                });
+            } catch (InterruptedException exception) {
+                Thread.currentThread().interrupt();
+            } catch (Exception exception) {
+                main.post(() -> {
+                    if (generation == comparisonGeneration)
+                        comparison.setValue(ExplorerState.failed(previous, exception));
+                });
+            }
+        });
+    }
+
+    /** Cancels the comparison coordinator and all still-running invokeAll children. */
+    public void cancelComparison() {
+        ++comparisonGeneration;
+        if (comparisonTask != null) comparisonTask.cancel(true);
+        if (comparison.getValue().status == Status.LOADING)
+            comparison.setValue(ExplorerState.of(Status.CANCELLED, comparison.getValue().data));
+    }
+
     /** Cancels Futures and immediately publishes CANCELLED while keeping previous data. */
     public void cancel() {
         ++listGeneration;
@@ -151,8 +214,11 @@ public class ExplorerViewModel extends ViewModel {
     @Override
     protected void onCleared() {
         cancel();
+        cancelComparison();
         listExecutor.shutdownNow();
         detailExecutor.shutdownNow();
+        comparisonPool.shutdownNow();
+        comparisonCoordinator.shutdownNow();
         main.removeCallbacksAndMessages(null);
         super.onCleared();
     }

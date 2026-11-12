@@ -122,6 +122,7 @@ public class ExplorerActivity extends ExplorerScreen {
         menu.findItem(R.id.exMenuRefresh).setEnabled(!model.busy());
         menu.findItem(R.id.exMenuLocations).setEnabled(!model.busy());
         menu.findItem(R.id.exMenuSettings).setEnabled(!model.busy());
+        menu.findItem(R.id.exMenuCompare).setEnabled(!model.busy());
         int checked = model.place() == Place.PORTO ? R.id.exPorto
                 : model.place() == Place.LISBON ? R.id.exLisbon : R.id.exFaro;
         menu.findItem(checked).setChecked(true);
@@ -133,6 +134,12 @@ public class ExplorerActivity extends ExplorerScreen {
         int id = item.getItemId();
         if (id == R.id.exMenuRefresh) { model.loadDays(isOnline()); return true; }
         if (id == R.id.exMenuAbout) { AboutDialog.show(this); return true; }
+        if (id == R.id.exMenuCompare) {
+            Bundle extras = new Bundle();
+            ExplorerContract.write(extras, model.place(), model.settings());
+            startActivity(new Intent(this, CompareActivity.class).putExtras(extras));
+            return true;
+        }
         if (id == R.id.exMenuSettings) {
             Bundle extras = new Bundle();
             ExplorerContract.write(extras, model.place(), model.settings());

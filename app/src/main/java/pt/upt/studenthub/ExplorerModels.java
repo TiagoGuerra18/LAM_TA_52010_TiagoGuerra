@@ -82,4 +82,16 @@ public final class ExplorerModels {
             this.weatherCode = weatherCode;
         }
     }
+
+    /** One independent comparison outcome, including its own failure or empty state. */
+    public static final class Comparison {
+        public final Place place;
+        public final ExplorerState<DayForecast> result;
+
+        /** Keeps a location's outcome independent of the other two requests. */
+        public Comparison(Place place, ExplorerState<DayForecast> result) {
+            this.place = place;
+            this.result = result;
+        }
+    }
 }

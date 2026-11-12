@@ -34,6 +34,7 @@
     <activity android:name=".ExplorerActivity" android:exported="false" android:label="@string/ex_title" android:parentActivityName=".MainActivity" />
     <activity android:name=".DetailActivity" android:exported="false" android:label="@string/ex_detail_title" android:parentActivityName=".ExplorerActivity" />
     <activity android:name=".SettingsActivity" android:exported="false" android:label="@string/ex_settings_title" android:parentActivityName=".ExplorerActivity" />
+    <activity android:name=".CompareActivity" android:exported="false" android:label="@string/ex_compare_title" android:parentActivityName=".ExplorerActivity" />
 </application>
 
 </manifest>
