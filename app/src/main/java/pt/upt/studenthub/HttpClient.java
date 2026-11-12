@@ -28,12 +28,17 @@ public final class HttpClient {
 
   /** Executes a UTF-8 GET with bounded timeouts and cooperative cancellation. */
   public static String get(String url) throws IOException {
+    return get(url, TIMEOUT_MS);
+  }
+
+  // Package-private timeout override keeps transport tests fast and independent of the Internet.
+  static String get(String url, int timeoutMs) throws IOException {
     checkInterrupted();
     HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
     try {
       conn.setRequestMethod("GET");
-      conn.setConnectTimeout(TIMEOUT_MS);
-      conn.setReadTimeout(TIMEOUT_MS);
+      conn.setConnectTimeout(timeoutMs);
+      conn.setReadTimeout(timeoutMs);
       conn.setRequestProperty("Accept", "application/json");
       checkInterrupted();
       int code = conn.getResponseCode();

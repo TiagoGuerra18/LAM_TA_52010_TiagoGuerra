@@ -23,6 +23,14 @@ import pt.upt.studenthub.ExplorerState.Status;
 
 /** Owns background requests and in-memory state across configuration changes, without a Context. */
 public class ExplorerViewModel extends ViewModel {
+    interface Transport { String get(String url) throws Exception; }
+    private final Transport transport;
+
+    /** Production constructor used by ViewModelProvider. */
+    public ExplorerViewModel() { this(HttpClient::get); }
+
+    // Injection seam lets tests control completion, failure and cancellation without real sockets.
+    ExplorerViewModel(Transport transport) { this.transport = transport; }
     private final ExecutorService listExecutor = Executors.newSingleThreadExecutor();
     private final ExecutorService detailExecutor = Executors.newSingleThreadExecutor();
     private final ExecutorService comparisonPool = Executors.newFixedThreadPool(3);
@@ -100,7 +108,7 @@ public class ExplorerViewModel extends ViewModel {
             try {
                 String url = debugHttpError ? ExplorerApi.comparison(requestedPlace, requestedSettings, true)
                         : ExplorerApi.daily(requestedPlace, requestedSettings);
-                List<DayForecast> parsed = ExplorerParser.daily(HttpClient.get(url));
+                List<DayForecast> parsed = ExplorerParser.daily(transport.get(url));
                 result = ExplorerState.of(parsed.isEmpty() ? Status.EMPTY : Status.SUCCESS, parsed);
             } catch (Exception exception) {
                 result = ExplorerState.failed(previous, exception);
@@ -127,7 +135,7 @@ public class ExplorerViewModel extends ViewModel {
         detailTask = detailExecutor.submit(() -> {
             ExplorerState<List<HourForecast>> result;
             try {
-                List<HourForecast> parsed = ExplorerParser.hourly(HttpClient.get(
+                List<HourForecast> parsed = ExplorerParser.hourly(transport.get(
                         ExplorerApi.hourly(requestedPlace, requestedSettings, date)));
                 result = ExplorerState.of(parsed.isEmpty() ? Status.EMPTY : Status.SUCCESS, parsed);
             } catch (Exception exception) {
@@ -171,7 +179,7 @@ public class ExplorerViewModel extends ViewModel {
             List<Callable<Comparison>> jobs = new ArrayList<>();
             for (Place location : Place.values()) jobs.add(() -> {
                 try {
-                    List<DayForecast> values = ExplorerParser.daily(HttpClient.get(
+                    List<DayForecast> values = ExplorerParser.daily(transport.get(
                             ExplorerApi.comparison(location, requestedSettings, failFaro && location == Place.FARO)));
                     return new Comparison(location, ExplorerState.of(values.isEmpty() ? Status.EMPTY : Status.SUCCESS,
                             values.isEmpty() ? null : values.get(0)));
