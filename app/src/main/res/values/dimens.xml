@@ -1,0 +1,13 @@
+<resources>
+
+    <!-- Espaçamento pequeno usado nas linhas das aulas. -->
+    <dimen name="spacing_s">8dp</dimen>
+
+    <!-- Espaçamentos usados nos layouts. -->
+    <dimen name="spacing_m">16dp</dimen>
+    <dimen name="spacing_l">24dp</dimen>
+
+    <!-- Altura mínima usada nos elementos do exercício. -->
+    <dimen name="touch_target">48dp</dimen>
+
+</resources>

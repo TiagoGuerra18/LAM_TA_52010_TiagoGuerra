@@ -1,0 +1,35 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# IDE settings and generated files
+.idea/
+.kotlin/
+**/build/
+*.log
+*.apk
+*.aab
+
+# Local working files and archived validation reports
+/tmp/
+/output/
+/VALIDACAO/
+
+# Local credentials and signing keys
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Combina aparecimento gradual com um pequeno movimento para cima. -->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="300"
+    android:interpolator="@android:anim/decelerate_interpolator">
+
+    <!-- A aula passa de transparente para visível. -->
+    <alpha
+        android:fromAlpha="0.0"
+        android:toAlpha="1.0" />
+
+    <!-- A aula começa ligeiramente abaixo da posição final. -->
+    <translate
+        android:fromYDelta="20%"
+        android:toYDelta="0%" />
+
+</set>
