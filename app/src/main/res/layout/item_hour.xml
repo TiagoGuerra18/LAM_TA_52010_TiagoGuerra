@@ -1,0 +1,5 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="@dimen/spacing_s" android:minHeight="@dimen/touch_target">
+    <TextView android:id="@+id/hourLine" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="@dimen/ex_body_size"/>
+    <TextView android:id="@+id/hourDescription" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="@dimen/ex_caption_size"/>
+    <TextView android:id="@+id/hourAlert" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/ex_hour_warning" android:textStyle="bold" android:textColor="@color/ex_warning_text" android:textSize="@dimen/ex_caption_size" android:visibility="gone"/>
+</LinearLayout>

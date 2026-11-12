@@ -1,5 +1,6 @@
 package pt.upt.studenthub;
 
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.os.Bundle;
@@ -11,6 +12,8 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import java.util.List;
@@ -25,6 +28,14 @@ public class ExplorerActivity extends ExplorerScreen {
     private ListView list;
     private Parcelable scrollState;
     private List<DayForecast> displayed;
+    private final ActivityResultLauncher<Intent> detailResult = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    String key = result.getData().getStringExtra(ExplorerContract.FAVORITE_KEY);
+                    if (key != null) model.setFavorite(key,
+                            result.getData().getBooleanExtra(ExplorerContract.FAVORITE, false));
+                }
+            });
 
     @Override protected void onCreate(Bundle saved) {
         super.onCreate(saved);
@@ -40,6 +51,7 @@ public class ExplorerActivity extends ExplorerScreen {
         list = findViewById(R.id.forecastList);
         adapter = new ItemAdapter(model::isFavorite);
         list.setAdapter(adapter);
+        list.setOnItemClickListener((parent, row, position, id) -> openDay(adapter.getItem(position)));
         findViewById(R.id.exRefresh).setOnClickListener(v -> model.loadDays(isOnline()));
         findViewById(R.id.exCancel).setOnClickListener(v -> model.cancel());
         model.days().observe(this, this::renderDays);
@@ -52,6 +64,15 @@ public class ExplorerActivity extends ExplorerScreen {
         if (manager == null || manager.getActiveNetwork() == null) return false;
         NetworkCapabilities caps = manager.getNetworkCapabilities(manager.getActiveNetwork());
         return caps != null && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+    }
+
+    private void openDay(DayForecast day) {
+        Bundle extras = new Bundle();
+        ExplorerContract.write(extras, model.place(), model.settings());
+        extras.putString(ExplorerContract.DATE, day.date);
+        extras.putBoolean(ExplorerContract.FAVORITE,
+                model.isFavorite(ExplorerViewModel.favoriteKey(model.place(), day.date)));
+        detailResult.launch(new Intent(this, DetailActivity.class).putExtras(extras));
     }
 
     private void renderDays(ExplorerState<List<DayForecast>> state) {
