@@ -60,6 +60,14 @@ public class ExplorerViewModel extends ViewModel {
     public Place place() { return place; }
     /** Selected date, retained even when switching orientation. */
     public String selectedDate() { return selectedDate; }
+    /** Retains a portrait selection without starting a redundant request in Explorer. */
+    public void selectDate(String date) {
+        if (date.equals(selectedDate)) return;
+        if (detailTask != null) detailTask.cancel(true);
+        ++detailGeneration;
+        selectedDate = date;
+        hours.setValue(ExplorerState.of(Status.IDLE, Collections.emptyList()));
+    }
     /** True if either request channel is active. */
     public boolean busy() {
         return days.getValue().status == Status.LOADING || hours.getValue().status == Status.LOADING;

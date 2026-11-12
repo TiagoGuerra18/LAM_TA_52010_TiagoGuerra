@@ -15,6 +15,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import java.util.List;
@@ -29,6 +30,7 @@ public class ExplorerActivity extends ExplorerScreen {
     private ListView list;
     private Parcelable scrollState;
     private List<DayForecast> displayed;
+    private DetailRenderer inlineDetail;
     private final ActivityResultLauncher<Intent> detailResult = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
@@ -61,10 +63,20 @@ public class ExplorerActivity extends ExplorerScreen {
         adapter = new ItemAdapter(model::isFavorite);
         list.setAdapter(adapter);
         list.setOnItemClickListener((parent, row, position, id) -> openDay(adapter.getItem(position)));
+        View detailPanel = findViewById(R.id.detailPanel);
+        if (detailPanel != null) inlineDetail = new DetailRenderer(detailPanel,
+                () -> model.loadHours(model.selectedDate(), isOnline(), true), model::cancel, this::toggleInlineFavorite);
         findViewById(R.id.exRefresh).setOnClickListener(v -> model.loadDays(isOnline()));
         findViewById(R.id.exCancel).setOnClickListener(v -> model.cancel());
         model.days().observe(this, this::renderDays);
-        model.favoriteVersion().observe(this, revision -> adapter.notifyDataSetChanged());
+        model.hours().observe(this, state -> {
+            renderInlineDetail();
+            renderDays(model.days().getValue());
+        });
+        model.favoriteVersion().observe(this, revision -> {
+            adapter.notifyDataSetChanged();
+            renderInlineDetail();
+        });
         if (model.days().getValue().status == Status.IDLE) model.loadDays(isOnline());
     }
 
@@ -76,12 +88,39 @@ public class ExplorerActivity extends ExplorerScreen {
     }
 
     private void openDay(DayForecast day) {
+        if (inlineDetail != null) {
+            model.loadHours(day.date, isOnline(), false);
+            return;
+        }
+        model.selectDate(day.date);
         Bundle extras = new Bundle();
         ExplorerContract.write(extras, model.place(), model.settings());
         extras.putString(ExplorerContract.DATE, day.date);
         extras.putBoolean(ExplorerContract.FAVORITE,
                 model.isFavorite(ExplorerViewModel.favoriteKey(model.place(), day.date)));
         detailResult.launch(new Intent(this, DetailActivity.class).putExtras(extras));
+    }
+
+    private void renderInlineDetail() {
+        if (inlineDetail == null) return;
+        String date = model.selectedDate();
+        inlineDetail.render(model.hours().getValue(), model.place(), date, model.settings(),
+                date != null && model.isFavorite(ExplorerViewModel.favoriteKey(model.place(), date)));
+    }
+
+    private void toggleInlineFavorite() {
+        String date = model.selectedDate();
+        if (date == null) return;
+        String key = ExplorerViewModel.favoriteKey(model.place(), date);
+        if (model.isFavorite(key)) new AlertDialog.Builder(this).setTitle(R.string.ex_remove_title)
+                .setMessage(R.string.ex_remove_message).setNegativeButton(R.string.ex_keep, null)
+                .setPositiveButton(R.string.ex_remove, (dialog, which) -> updateInlineFavorite(key, false)).show();
+        else updateInlineFavorite(key, true);
+    }
+
+    private void updateInlineFavorite(String key, boolean value) {
+        model.setFavorite(key, value);
+        Toast.makeText(this, value ? R.string.ex_favorite_added : R.string.ex_favorite_removed, Toast.LENGTH_SHORT).show();
     }
 
     private void renderDays(ExplorerState<List<DayForecast>> state) {
