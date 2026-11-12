@@ -1,0 +1,22 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:fitsSystemWindows="true" android:fillViewport="true">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="@dimen/spacing_m">
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/ex_unit_label" android:textSize="@dimen/ex_body_size" android:textStyle="bold" android:accessibilityHeading="true"/>
+        <RadioGroup android:id="@+id/settingsUnits" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+            <RadioButton android:id="@+id/unitC" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/unit_celsius" android:minHeight="@dimen/touch_target"/>
+            <RadioButton android:id="@+id/unitF" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/unit_fahrenheit" android:minHeight="@dimen/touch_target"/>
+        </RadioGroup>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/ex_days_label" android:textSize="@dimen/ex_body_size" android:textStyle="bold" android:accessibilityHeading="true" android:layout_marginTop="@dimen/spacing_m"/>
+        <RadioGroup android:id="@+id/settingsDays" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+            <RadioButton android:id="@+id/days3" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/ex_days_3" android:minHeight="@dimen/touch_target"/>
+            <RadioButton android:id="@+id/days5" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/ex_days_5" android:minHeight="@dimen/touch_target"/>
+            <RadioButton android:id="@+id/days7" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/ex_days_7" android:minHeight="@dimen/touch_target"/>
+        </RadioGroup>
+        <CheckBox android:id="@+id/settingsHighlight" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/ex_highlight_label" android:minHeight="@dimen/touch_target"/>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/ex_threshold_label" android:labelFor="@id/settingsThreshold" android:layout_marginTop="@dimen/spacing_m"/>
+        <EditText android:id="@+id/settingsThreshold" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="number" android:imeOptions="actionNext" android:importantForAutofill="no" android:maxLength="10" android:minHeight="@dimen/touch_target"/>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/ex_interval_label" android:labelFor="@id/settingsInterval" android:layout_marginTop="@dimen/spacing_m"/>
+        <EditText android:id="@+id/settingsInterval" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="number" android:imeOptions="actionDone" android:importantForAutofill="no" android:maxLength="10" android:minHeight="@dimen/touch_target"/>
+        <Button android:id="@+id/settingsSave" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/ex_save" android:minHeight="@dimen/touch_target" android:layout_marginTop="@dimen/spacing_m"/>
+        <Button android:id="@+id/settingsCancel" style="?attr/materialButtonOutlinedStyle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/ex_settings_cancel" android:minHeight="@dimen/touch_target"/>
+    </LinearLayout>
+</ScrollView>

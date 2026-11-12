@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -34,6 +35,14 @@ public class ExplorerActivity extends ExplorerScreen {
                     String key = result.getData().getStringExtra(ExplorerContract.FAVORITE_KEY);
                     if (key != null) model.setFavorite(key,
                             result.getData().getBooleanExtra(ExplorerContract.FAVORITE, false));
+                }
+            });
+    private final ActivityResultLauncher<Intent> settingsResult = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    model.configure(model.place(), ExplorerContract.settings(result.getData().getExtras()));
+                    model.loadDays(isOnline());
+                    Toast.makeText(this, R.string.ex_settings_saved, Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -112,6 +121,7 @@ public class ExplorerActivity extends ExplorerScreen {
     @Override public boolean onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.exMenuRefresh).setEnabled(!model.busy());
         menu.findItem(R.id.exMenuLocations).setEnabled(!model.busy());
+        menu.findItem(R.id.exMenuSettings).setEnabled(!model.busy());
         int checked = model.place() == Place.PORTO ? R.id.exPorto
                 : model.place() == Place.LISBON ? R.id.exLisbon : R.id.exFaro;
         menu.findItem(checked).setChecked(true);
@@ -123,6 +133,12 @@ public class ExplorerActivity extends ExplorerScreen {
         int id = item.getItemId();
         if (id == R.id.exMenuRefresh) { model.loadDays(isOnline()); return true; }
         if (id == R.id.exMenuAbout) { AboutDialog.show(this); return true; }
+        if (id == R.id.exMenuSettings) {
+            Bundle extras = new Bundle();
+            ExplorerContract.write(extras, model.place(), model.settings());
+            settingsResult.launch(new Intent(this, SettingsActivity.class).putExtras(extras));
+            return true;
+        }
         if (id == R.id.exPorto || id == R.id.exLisbon || id == R.id.exFaro) {
             Place place = id == R.id.exPorto ? Place.PORTO : id == R.id.exLisbon ? Place.LISBON : Place.FARO;
             model.configure(place, model.settings());

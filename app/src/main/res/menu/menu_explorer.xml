@@ -1,5 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 <item android:id="@+id/exMenuRefresh" android:title="@string/menu_refresh"/>
 <item android:id="@+id/exMenuLocations" android:title="@string/ex_choose_place"><menu><group android:checkableBehavior="single"><item android:id="@+id/exPorto" android:title="@string/place_porto" android:checked="true"/><item android:id="@+id/exLisbon" android:title="@string/place_lisbon"/><item android:id="@+id/exFaro" android:title="@string/place_faro"/></group></menu></item>
+<item android:id="@+id/exMenuSettings" android:title="@string/ex_settings_title"/>
 <item android:id="@+id/exMenuAbout" android:title="@string/menu_about"/>
 </menu>
