@@ -12,10 +12,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+/** Owns cancellable timetable synchronization across rotation. */
 public class TimetableViewModel extends ViewModel {
 
   // Estados possíveis da sincronização.
 
+  /** Timetable synchronization states. */
   public enum State {
     IDLE,
     RUNNING,
@@ -50,16 +52,19 @@ public class TimetableViewModel extends ViewModel {
 
   // Expõe os dados à Activity apenas para observação.
 
+  /** Read-only synchronization state. */
   public LiveData<State> getState() {
 
     return state;
   }
 
+  /** Read-only progress percentage. */
   public LiveData<Integer> getProgress() {
 
     return progress;
   }
 
+  /** Read-only immutable session snapshot. */
   public LiveData<List<String>> getSessions() {
 
     return sessions;
@@ -67,6 +72,7 @@ public class TimetableViewModel extends ViewModel {
 
   // Chamado na thread principal para iniciar a sincronização.
 
+  /** Starts background synchronization unless one is already running. */
   public void startSync(String[] source) {
 
     // Impede iniciar uma segunda sincronização enquanto decorre a primeira.
@@ -151,6 +157,7 @@ public class TimetableViewModel extends ViewModel {
 
   // Pede a interrupção da tarefa em execução.
 
+  /** Requests interruption of the current synchronization. */
   public void cancelSync() {
 
     if (currentTask != null) {
@@ -161,6 +168,7 @@ public class TimetableViewModel extends ViewModel {
 
   // Limpa os dados apenas quando não existe sincronização em execução.
 
+  /** Clears completed data when no synchronization is running. */
   public void clear() {
 
     if (state.getValue() == State.RUNNING) {

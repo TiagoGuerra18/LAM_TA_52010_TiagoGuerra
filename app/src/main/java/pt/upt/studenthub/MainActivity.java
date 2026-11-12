@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+/** Entry point shared by the timetable, campus weather and Explorer modules. */
 public class MainActivity extends AppCompatActivity {
   private EditText etName;
 
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     String name = etName.getText().toString().trim();
     if (name.isEmpty()) {
       etName.setError(getString(R.string.error_name_required));
+      etName.requestFocus();
       return null;
     }
     return name;
@@ -69,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
   @Override
   // Cria o menu do ecrã.
+  /** Creates the main options menu. */
   public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.menu_main, menu);
     return true;
@@ -76,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
   @Override
   // Executa a opção selecionada.
+  /** Handles the About option. */
   public boolean onOptionsItemSelected(@NonNull MenuItem item) {
     if (item.getItemId() == R.id.action_about) {
       AboutDialog.show(this);

@@ -2,12 +2,14 @@ package pt.upt.studenthub;
 
 import androidx.annotation.StringRes;
 
+/** Maps WMO weather codes to localized string resources. */
 public final class WeatherCodes {
   // Impede a criação de instâncias desta classe.
   private WeatherCodes() {}
 
   @StringRes
   // Converte o código WMO num recurso de texto.
+  /** Returns the description resource for a WMO code. */
   public static int describe(int code) {
     if (code == 0) return R.string.wmo_clear;
     if (code == 1) return R.string.wmo_mainly_clear;

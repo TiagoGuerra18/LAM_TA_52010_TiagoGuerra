@@ -5,12 +5,14 @@ import androidx.appcompat.app.AlertDialog;
 
 // Classe partilhada pelas duas Activities para mostrar a janela "Sobre".
 
+/** Shared About dialog containing the student and module identification. */
 public final class AboutDialog {
 
   private AboutDialog() {}
 
   // O parâmetro context recebe a Activity onde a janela será apresentada.
 
+  /** Displays the resource-based About message. */
   public static void show(Context context) {
 
     // Cria e configura a janela de diálogo.

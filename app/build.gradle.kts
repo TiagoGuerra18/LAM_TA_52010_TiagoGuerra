@@ -38,7 +38,8 @@ android {
                 "--add-opens=java.base/java.net=ALL-UNNAMED",
                 "--add-opens=java.base/java.security=ALL-UNNAMED",
                 "--add-opens=java.base/java.text=ALL-UNNAMED",
-                "--add-opens=java.base/jdk.internal.access=ALL-UNNAMED")
+                "--add-opens=java.base/jdk.internal.access=ALL-UNNAMED",
+                "--enable-native-access=ALL-UNNAMED")
         }
     }
 }
@@ -50,7 +51,6 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation("org.robolectric:robolectric:4.17")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
-    androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.8.7")
     implementation("androidx.lifecycle:lifecycle-livedata:2.8.7")

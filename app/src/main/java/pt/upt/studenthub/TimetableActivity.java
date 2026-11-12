@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import java.util.List;
 
+/** Displays the original asynchronous timetable module. */
 public class TimetableActivity extends AppCompatActivity {
 
   // Chave partilhada pelas duas Activities para transportar o nome.
@@ -186,6 +187,7 @@ public class TimetableActivity extends AppCompatActivity {
 
   // Cria o menu da barra superior usando menu_timetable.xml.
   @Override
+  /** Creates the timetable menu. */
   public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.menu_timetable, menu);
     return true;
@@ -193,6 +195,7 @@ public class TimetableActivity extends AppCompatActivity {
 
   // Desativa Limpar enquanto está a sincronizar.
   @Override
+  /** Disables clearing while synchronization is running. */
   public boolean onPrepareOptionsMenu(Menu menu) {
     MenuItem clear = menu.findItem(R.id.action_clear);
 
@@ -203,6 +206,7 @@ public class TimetableActivity extends AppCompatActivity {
 
   // Executa a ação correspondente à opção selecionada.
   @Override
+  /** Handles timetable actions and About. */
   public boolean onOptionsItemSelected(@NonNull MenuItem item) {
     int id = item.getItemId();
 

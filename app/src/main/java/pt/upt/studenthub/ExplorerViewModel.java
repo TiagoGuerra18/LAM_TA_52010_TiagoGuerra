@@ -2,6 +2,7 @@ package pt.upt.studenthub;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -103,6 +104,7 @@ public class ExplorerViewModel extends ViewModel {
         days.setValue(ExplorerState.of(Status.LOADING, previous));
         final Place requestedPlace = place;
         final Settings requestedSettings = settings;
+        Log.d("ExplorerRequests", "daily start " + generation + " " + requestedPlace);
         listTask = listExecutor.submit(() -> {
             ExplorerState<List<DayForecast>> result;
             try {
@@ -132,6 +134,7 @@ public class ExplorerViewModel extends ViewModel {
         hours.setValue(ExplorerState.of(Status.LOADING, previous));
         final Place requestedPlace = place;
         final Settings requestedSettings = settings;
+        Log.d("ExplorerRequests", "hourly start " + generation + " " + requestedPlace + " " + date);
         detailTask = detailExecutor.submit(() -> {
             ExplorerState<List<HourForecast>> result;
             try {
@@ -175,6 +178,7 @@ public class ExplorerViewModel extends ViewModel {
         }
         comparison.setValue(ExplorerState.of(Status.LOADING, previous));
         final Settings requestedSettings = settings;
+        Log.d("ExplorerRequests", "comparison start " + generation);
         comparisonTask = comparisonCoordinator.submit(() -> {
             List<Callable<Comparison>> jobs = new ArrayList<>();
             for (Place location : Place.values()) jobs.add(() -> {

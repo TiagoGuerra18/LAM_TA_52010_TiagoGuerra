@@ -24,6 +24,7 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import java.io.IOException;
 
+/** Displays current campus weather while respecting the Activity lifecycle. */
 public class WeatherActivity extends AppCompatActivity {
   private WeatherViewModel viewModel;
   private ConnectivityManager connectivityManager;
@@ -200,6 +201,7 @@ public class WeatherActivity extends AppCompatActivity {
 
   @Override
   // Cria o menu do ecrã.
+  /** Creates the campus weather menu. */
   public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.menu_weather, menu);
     return true;
@@ -207,6 +209,7 @@ public class WeatherActivity extends AppCompatActivity {
 
   @Override
   // Desativa as ações durante o carregamento.
+  /** Disables request commands during loading. */
   public boolean onPrepareOptionsMenu(Menu menu) {
     boolean loading = viewModel.getStatus().getValue() == WeatherViewModel.Status.LOADING;
     menu.findItem(R.id.action_refresh).setEnabled(!loading);
@@ -216,6 +219,7 @@ public class WeatherActivity extends AppCompatActivity {
 
   @Override
   // Executa a opção selecionada.
+  /** Handles refresh, classroom demonstrations and About. */
   public boolean onOptionsItemSelected(@NonNull MenuItem item) {
     int id = item.getItemId();
     if (id == R.id.action_refresh) {

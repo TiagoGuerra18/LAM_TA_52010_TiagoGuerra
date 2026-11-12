@@ -12,7 +12,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.json.JSONException;
 
+/** Owns background campus weather requests and observable results. */
 public class WeatherViewModel extends ViewModel {
+  /** Campus weather request states. */
   public enum Status {
     IDLE,
     LOADING,
@@ -20,6 +22,7 @@ public class WeatherViewModel extends ViewModel {
     ERROR
   }
 
+  /** Transport and parsing failure categories. */
   public enum ErrorType {
     NO_CONNECTION,
     TIMEOUT,
@@ -36,26 +39,31 @@ public class WeatherViewModel extends ViewModel {
   private Future<?> currentTask;
 
   // Expõe o estado do pedido.
+  /** Read-only request status. */
   public LiveData<Status> getStatus() {
     return status;
   }
 
   // Expõe o último relatório recebido.
+  /** Read-only latest successful campus report. */
   public LiveData<WeatherReport> getReport() {
     return report;
   }
 
   // Expõe o tipo do último erro.
+  /** Read-only error category. */
   public LiveData<ErrorType> getError() {
     return error;
   }
 
   // Devolve o último código de erro HTTP.
+  /** HTTP code associated with the latest HTTP failure. */
   public int getLastHttpCode() {
     return lastHttpCode;
   }
 
   // Descarrega e interpreta os dados na worker thread.
+  /** Loads campus weather in the background without duplicating a running request. */
   public void load(String url) {
     if (status.getValue() == Status.LOADING) {
       return;

@@ -3,11 +3,13 @@ package pt.upt.studenthub;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/** Parses the original campus weather response. */
 public final class WeatherParser {
   // Impede a criação de instâncias desta classe.
   private WeatherParser() {}
 
   // Converte o JSON num relatório meteorológico.
+  /** Converts the current API object into an immutable report. */
   public static WeatherReport parse(String json) throws JSONException {
     JSONObject root = new JSONObject(json);
     JSONObject current = root.getJSONObject("current");

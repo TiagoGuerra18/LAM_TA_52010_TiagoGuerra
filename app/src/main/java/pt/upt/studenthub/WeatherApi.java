@@ -9,11 +9,13 @@ public final class WeatherApi {
   private WeatherApi() {}
 
   // Devolve o endereço da meteorologia atual.
+  /** Returns the current campus weather URL from the central factory. */
   public static String currentWeatherUrl() {
     return ExplorerApi.campusWeather(false);
   }
 
   // Devolve um endereço inválido para testar erros HTTP.
+  /** Returns a deliberately invalid URL for the classroom HTTP-error demonstration. */
   public static String brokenUrl() {
     return ExplorerApi.campusWeather(true);
   }
