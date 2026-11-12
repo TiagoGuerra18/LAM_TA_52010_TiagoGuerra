@@ -1,7 +1,6 @@
 package pt.upt.studenthub;
 
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.animation.AnimationUtils;
@@ -9,7 +8,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -216,12 +214,6 @@ public class TimetableActivity extends AppCompatActivity {
       viewModel.clear();
       return true;
 
-    } else if (id == R.id.action_block_ui) {
-
-      // Executa o bloqueio demonstrativo exigido pela ficha.
-      blockUiThreadOnPurpose();
-      return true;
-
     } else if (id == R.id.action_about) {
 
       // Abre a janela Sobre através da classe que criámos.
@@ -233,22 +225,4 @@ public class TimetableActivity extends AppCompatActivity {
     return super.onOptionsItemSelected(item);
   }
 
-  // Má prática intencional, disponível apenas pela opção do menu.
-  private void blockUiThreadOnPurpose() {
-
-    // Assinala esta operação para o StrictMode.
-    StrictMode.noteSlowCall("Blocking the UI thread on purpose");
-
-    try {
-      // Bloqueia deliberadamente a thread principal por 6 segundos.
-      Thread.sleep(6000);
-    } catch (InterruptedException e) {
-
-      // Restaura o sinal de interrupção.
-      Thread.currentThread().interrupt();
-    }
-
-    // Apresenta a mensagem depois de terminar o bloqueio.
-    Toast.makeText(this, R.string.msg_blocked, Toast.LENGTH_SHORT).show();
-  }
 }

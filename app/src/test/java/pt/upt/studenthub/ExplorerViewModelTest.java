@@ -61,6 +61,35 @@ public class ExplorerViewModelTest {
         assertEquals(Status.CANCELLED, model.days().getValue().status);
         assertEquals(1, model.days().getValue().data.size());
     }
+    @Test public void lateCancelledResultNeverOverwritesANewerRequest() throws Exception {
+        CountDownLatch started = new CountDownLatch(1);
+        CountDownLatch release = new CountDownLatch(1);
+        AtomicInteger calls = new AtomicInteger();
+        java.util.List<String> successfulDates = new java.util.ArrayList<>();
+        model = new ExplorerViewModel(url -> {
+            if (calls.getAndIncrement() == 0) {
+                started.countDown();
+                boolean released = false;
+                long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+                while (!released && System.nanoTime() < deadline) {
+                    try { released = release.await(2, TimeUnit.SECONDS); }
+                    catch (InterruptedException ignored) { /* Simulates a socket finishing after cancellation. */ }
+                }
+                return ExplorerParserTest.DAILY;
+            }
+            return ExplorerParserTest.DAILY.replace("2026-11-12", "2026-11-13");
+        });
+        model.days().observeForever(state -> {
+            if (state.status == Status.SUCCESS) successfulDates.add(state.data.get(0).date);
+        });
+        model.loadDays(true);
+        assertTrue(started.await(2, TimeUnit.SECONDS));
+        model.cancel();
+        model.loadDays(true);
+        release.countDown();
+        await(() -> model.days().getValue().status == Status.SUCCESS);
+        assertEquals(java.util.Collections.singletonList("2026-11-13"), successfulDates);
+    }
     @Test public void favoritesDistinguishLocationAndSurviveConfigurationChange() {
         model = new ExplorerViewModel(url -> ExplorerParserTest.DAILY);
         String porto = ExplorerViewModel.favoriteKey(Place.PORTO, "2026-11-12");

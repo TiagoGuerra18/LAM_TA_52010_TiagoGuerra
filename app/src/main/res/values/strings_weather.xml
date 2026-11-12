@@ -21,9 +21,7 @@
     <string name="toast_airplane_on">Modo de avião ligado</string>
     <string name="toast_airplane_off">Modo de avião desligado</string>
     <string name="toast_back_online">Ligação restabelecida — a atualizar…</string>
-    <string name="toast_main_thread">A rede não pode ser usada na thread da interface.</string>
     <string name="menu_refresh">Atualizar</string>
-    <string name="menu_main_thread">Rede na thread principal (demonstração)</string>
     <string name="menu_server_error">Simular erro HTTP</string>
     <string name="wmo_clear">Céu limpo</string>
     <string name="wmo_mainly_clear">Pouco nublado</string>

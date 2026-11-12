@@ -8,7 +8,6 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.os.Bundle;
-import android.os.NetworkOnMainThreadException;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,7 +21,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
-import java.io.IOException;
 
 /** Displays current campus weather while respecting the Activity lifecycle. */
 public class WeatherActivity extends AppCompatActivity {
@@ -42,7 +40,7 @@ public class WeatherActivity extends AppCompatActivity {
   private final BroadcastReceiver airplaneModeReceiver =
       new BroadcastReceiver() {
         @Override
-        // Mostra a alteração do modo de voo.
+        /** Reports the airplane-mode broadcast. */
         public void onReceive(Context context, Intent intent) {
           boolean enabled = intent.getBooleanExtra("state", false);
           Toast.makeText(
@@ -55,13 +53,13 @@ public class WeatherActivity extends AppCompatActivity {
   private final ConnectivityManager.NetworkCallback networkCallback =
       new ConnectivityManager.NetworkCallback() {
         @Override
-        // Atualiza a interface quando surge uma rede.
+        /** Delivers network availability to the main thread. */
         public void onAvailable(@NonNull Network network) {
           runOnUiThread(() -> setOnline(true));
         }
 
         @Override
-        // Atualiza a interface quando a rede desaparece.
+        /** Delivers network loss to the main thread. */
         public void onLost(@NonNull Network network) {
           runOnUiThread(() -> setOnline(false));
         }
@@ -219,14 +217,11 @@ public class WeatherActivity extends AppCompatActivity {
 
   @Override
   // Executa a opção selecionada.
-  /** Handles refresh, classroom demonstrations and About. */
+  /** Handles campus refresh, HTTP error simulation and About. */
   public boolean onOptionsItemSelected(@NonNull MenuItem item) {
     int id = item.getItemId();
     if (id == R.id.action_refresh) {
       viewModel.load(WeatherApi.currentWeatherUrl());
-      return true;
-    } else if (id == R.id.action_main_thread) {
-      fetchOnMainThreadOnPurpose();
       return true;
     } else if (id == R.id.action_server_error) {
       viewModel.load(WeatherApi.brokenUrl());
@@ -238,14 +233,4 @@ public class WeatherActivity extends AppCompatActivity {
     return super.onOptionsItemSelected(item);
   }
 
-  // Demonstra e captura o erro de rede na main thread.
-  private void fetchOnMainThreadOnPurpose() {
-    try {
-      HttpClient.get(WeatherApi.currentWeatherUrl());
-    } catch (NetworkOnMainThreadException e) {
-      Toast.makeText(this, R.string.toast_main_thread, Toast.LENGTH_LONG).show();
-    } catch (IOException e) {
-      Toast.makeText(this, R.string.err_no_connection, Toast.LENGTH_LONG).show();
-    }
-  }
 }

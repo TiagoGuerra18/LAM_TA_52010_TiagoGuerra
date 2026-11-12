@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="ex_title">Explorer · Previsão semanal</string>
     <string name="ex_open">Explorer — Previsão semanal</string>
@@ -51,21 +51,15 @@
     <string name="ex_invalid_threshold">Introduz um número inteiro entre 0 e 100</string>
     <string name="ex_invalid_interval">Introduz um número inteiro entre 15 e 3600</string>
     <string name="ex_compare_title">Comparar cidades</string>
-    <string name="ex_compare_today">Previsão de hoje · três pedidos em paralelo</string>
+    <string name="ex_compare_today">Previsão de hoje</string>
     <string name="ex_compare">Comparar</string>
     <string name="ex_compare_success">Dados recebidos</string>
-    <string name="ex_compare_values">Máxima
-%1$s
-
-Mínima
-%2$s
-
-Chuva
-%3$s</string>
+    <string name="ex_compare_values">Máxima\n%1$s\n\nMínima\n%2$s\n\nChuva\n%3$s</string>
     <string name="ex_debug_http">Simular erro HTTP (debug)</string>
     <string name="ex_debug_compare">Comparar com falha em Faro (debug)</string>
     <string name="ex_debug_partial">Simulação: Faro usa um endereço inválido</string>
     <string name="ex_settings_cancel">Cancelar alterações</string>
     <string name="ex_minimum">Mínima</string>
     <string name="ex_maximum">Máxima</string>
+    <string name="ex_compare_summary">Comparação concluída: %1$d de 3 cidades com dados</string>
 </resources>

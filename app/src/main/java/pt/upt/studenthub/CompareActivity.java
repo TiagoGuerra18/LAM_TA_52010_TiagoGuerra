@@ -58,7 +58,10 @@ public class CompareActivity extends ExplorerScreen {
         findViewById(R.id.compareProgress).setVisibility(loading ? View.VISIBLE : View.GONE);
         findViewById(R.id.compareRefresh).setEnabled(!loading);
         findViewById(R.id.compareCancel).setEnabled(loading);
-        ((TextView) findViewById(R.id.compareStatus)).setText(ExplorerUi.state(this, state));
+        int successful = 0;
+        for (Comparison item : state.data) if (item.result.status == Status.SUCCESS) successful++;
+        ((TextView) findViewById(R.id.compareStatus)).setText(state.status == Status.SUCCESS
+                ? getString(R.string.ex_compare_summary, successful) : ExplorerUi.state(this, state));
         for (Place place : Place.values()) {
             View card = cards.get(place);
             ((TextView) card.findViewById(R.id.compareMessage)).setText(ExplorerUi.state(this, state));
@@ -66,7 +69,8 @@ public class CompareActivity extends ExplorerScreen {
         }
         for (Comparison item : state.data) {
             View card = cards.get(item.place);
-            ((TextView) card.findViewById(R.id.compareMessage)).setText(ExplorerUi.state(this, item.result));
+            ((TextView) card.findViewById(R.id.compareMessage)).setText(item.result.status == Status.SUCCESS
+                    ? getString(R.string.ex_compare_success) : ExplorerUi.state(this, item.result));
             DayForecast day = item.result.data;
             if (day != null) ((TextView) card.findViewById(R.id.compareValues)).setText(getString(
                     R.string.ex_compare_values, ExplorerUi.temperature(this, day.maximum, model.settings()),

@@ -117,7 +117,12 @@ public class ExplorerViewModel extends ViewModel {
             }
             final ExplorerState<List<DayForecast>> snapshot = result;
             // A cancelled worker may still finish a socket read: generation prevents stale delivery.
-            main.post(() -> { if (generation == listGeneration) days.setValue(snapshot); });
+            main.post(() -> {
+                if (generation == listGeneration) {
+                    Log.d("ExplorerRequests", "daily finish " + generation + " " + snapshot.status);
+                    days.setValue(snapshot);
+                }
+            });
         });
     }
 
