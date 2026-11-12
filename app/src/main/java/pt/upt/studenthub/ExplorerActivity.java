@@ -1,10 +1,18 @@
 package pt.upt.studenthub;
 
 import android.content.Intent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
+import android.net.Network;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.BatteryManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,6 +39,30 @@ public class ExplorerActivity extends ExplorerScreen {
     private Parcelable scrollState;
     private List<DayForecast> displayed;
     private DetailRenderer inlineDetail;
+    private ConnectivityManager connectivity;
+    private boolean visible;
+    private boolean online;
+    private boolean batteryLow;
+    private final Handler periodic = new Handler(Looper.getMainLooper());
+    private final Runnable refreshTick = new Runnable() {
+        @Override public void run() {
+            if (!visible || batteryLow) return;
+            if (online && !model.busy()) model.loadDays(true);
+            scheduleRefresh();
+        }
+    };
+    private final BroadcastReceiver batteryReceiver = new BroadcastReceiver() {
+        @Override public void onReceive(Context context, Intent intent) {
+            if (visible) setBatteryLow(Intent.ACTION_BATTERY_LOW.equals(intent.getAction()));
+        }
+    };
+    private final ConnectivityManager.NetworkCallback networkCallback = new ConnectivityManager.NetworkCallback() {
+        @Override public void onAvailable(@NonNull Network network) { networkChanged(); }
+        @Override public void onLost(@NonNull Network network) { networkChanged(); }
+        @Override public void onCapabilitiesChanged(@NonNull Network network, @NonNull NetworkCapabilities caps) {
+            networkChanged();
+        }
+    };
     private final ActivityResultLauncher<Intent> detailResult = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
@@ -44,6 +76,7 @@ public class ExplorerActivity extends ExplorerScreen {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                     model.configure(model.place(), ExplorerContract.settings(result.getData().getExtras()));
                     model.loadDays(isOnline());
+                    scheduleRefresh();
                     Toast.makeText(this, R.string.ex_settings_saved, Toast.LENGTH_SHORT).show();
                 }
             });
@@ -51,6 +84,8 @@ public class ExplorerActivity extends ExplorerScreen {
     @Override protected void onCreate(Bundle saved) {
         super.onCreate(saved);
         setContentView(R.layout.activity_explorer);
+        connectivity = ContextCompat.getSystemService(this, ConnectivityManager.class);
+        online = isOnline();
         model = new ViewModelProvider(this).get(ExplorerViewModel.class);
         if (saved != null && model.days().getValue().status == Status.IDLE) {
             model.configure(ExplorerContract.place(saved), ExplorerContract.settings(saved));
@@ -81,10 +116,68 @@ public class ExplorerActivity extends ExplorerScreen {
     }
 
     protected boolean isOnline() {
-        ConnectivityManager manager = ContextCompat.getSystemService(this, ConnectivityManager.class);
+        ConnectivityManager manager = connectivity;
         if (manager == null || manager.getActiveNetwork() == null) return false;
         NetworkCapabilities caps = manager.getNetworkCapabilities(manager.getActiveNetwork());
-        return caps != null && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+        return caps != null && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+    }
+
+    @Override protected void onStart() {
+        super.onStart();
+        visible = true;
+        IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_LOW);
+        filter.addAction(Intent.ACTION_BATTERY_OKAY);
+        ContextCompat.registerReceiver(this, batteryReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
+        Intent battery = ContextCompat.registerReceiver(this, null,
+                new IntentFilter(Intent.ACTION_BATTERY_CHANGED), ContextCompat.RECEIVER_NOT_EXPORTED);
+        boolean low = false;
+        if (battery != null) {
+            int level = battery.getIntExtra(BatteryManager.EXTRA_LEVEL, 100);
+            int scale = battery.getIntExtra(BatteryManager.EXTRA_SCALE, 100);
+            int status = battery.getIntExtra(BatteryManager.EXTRA_STATUS, BatteryManager.BATTERY_STATUS_UNKNOWN);
+            low = battery.getBooleanExtra("battery_low", false)
+                    || (scale > 0 && level * 100 / scale <= 15
+                    && status != BatteryManager.BATTERY_STATUS_CHARGING && status != BatteryManager.BATTERY_STATUS_FULL);
+        }
+        setBatteryLow(low);
+        if (connectivity != null) connectivity.registerDefaultNetworkCallback(networkCallback);
+        updateNetwork();
+        scheduleRefresh();
+    }
+
+    @Override protected void onStop() {
+        visible = false;
+        periodic.removeCallbacks(refreshTick);
+        unregisterReceiver(batteryReceiver);
+        if (connectivity != null) connectivity.unregisterNetworkCallback(networkCallback);
+        super.onStop();
+    }
+
+    private void networkChanged() {
+        runOnUiThread(() -> { if (visible) updateNetwork(); });
+    }
+
+    private void updateNetwork() {
+        boolean now = isOnline();
+        boolean returned = !online && now;
+        online = now;
+        findViewById(R.id.exOffline).setVisibility(now ? View.GONE : View.VISIBLE);
+        if (returned && model.days().getValue().status == Status.ERROR) {
+            Toast.makeText(this, R.string.toast_back_online, Toast.LENGTH_SHORT).show();
+            model.loadDays(true);
+        }
+    }
+
+    private void setBatteryLow(boolean low) {
+        batteryLow = low;
+        findViewById(R.id.exBattery).setVisibility(low ? View.VISIBLE : View.GONE);
+        scheduleRefresh();
+    }
+
+    private void scheduleRefresh() {
+        periodic.removeCallbacks(refreshTick);
+        if (visible && !batteryLow) periodic.postDelayed(refreshTick, model.settings().refreshSeconds * 1000L);
     }
 
     private void openDay(DayForecast day) {
@@ -162,6 +255,9 @@ public class ExplorerActivity extends ExplorerScreen {
         menu.findItem(R.id.exMenuLocations).setEnabled(!model.busy());
         menu.findItem(R.id.exMenuSettings).setEnabled(!model.busy());
         menu.findItem(R.id.exMenuCompare).setEnabled(!model.busy());
+        boolean debug = (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
+        menu.findItem(R.id.exDebugHttp).setVisible(debug).setEnabled(!model.busy());
+        menu.findItem(R.id.exDebugCompare).setVisible(debug).setEnabled(!model.busy());
         int checked = model.place() == Place.PORTO ? R.id.exPorto
                 : model.place() == Place.LISBON ? R.id.exLisbon : R.id.exFaro;
         menu.findItem(checked).setChecked(true);
@@ -173,10 +269,12 @@ public class ExplorerActivity extends ExplorerScreen {
         int id = item.getItemId();
         if (id == R.id.exMenuRefresh) { model.loadDays(isOnline()); return true; }
         if (id == R.id.exMenuAbout) { AboutDialog.show(this); return true; }
-        if (id == R.id.exMenuCompare) {
+        if (id == R.id.exDebugHttp) { model.loadDays(isOnline(), true); return true; }
+        if (id == R.id.exMenuCompare || id == R.id.exDebugCompare) {
             Bundle extras = new Bundle();
             ExplorerContract.write(extras, model.place(), model.settings());
-            startActivity(new Intent(this, CompareActivity.class).putExtras(extras));
+            startActivity(new Intent(this, CompareActivity.class).putExtras(extras)
+                    .putExtra(CompareActivity.DEBUG_FAIL_FARO, id == R.id.exDebugCompare));
             return true;
         }
         if (id == R.id.exMenuSettings) {

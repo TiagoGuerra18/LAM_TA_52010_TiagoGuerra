@@ -4,4 +4,6 @@
 <item android:id="@+id/exMenuSettings" android:title="@string/ex_settings_title"/>
 <item android:id="@+id/exMenuCompare" android:title="@string/ex_compare"/>
 <item android:id="@+id/exMenuAbout" android:title="@string/menu_about"/>
+<item android:id="@+id/exDebugHttp" android:title="@string/ex_debug_http" android:visible="false"/>
+<item android:id="@+id/exDebugCompare" android:title="@string/ex_debug_compare" android:visible="false"/>
 </menu>
