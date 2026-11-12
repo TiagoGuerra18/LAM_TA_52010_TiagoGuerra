@@ -9,7 +9,6 @@ import android.net.Network;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.BatteryManager;
@@ -36,7 +35,8 @@ public class ExplorerActivity extends ExplorerScreen {
     protected ExplorerViewModel model;
     private ItemAdapter adapter;
     private ListView list;
-    private Parcelable scrollState;
+    private int restoredPosition = -1;
+    private int restoredTop;
     private List<DayForecast> displayed;
     private DetailRenderer inlineDetail;
     private ConnectivityManager connectivity;
@@ -45,6 +45,7 @@ public class ExplorerActivity extends ExplorerScreen {
     private boolean batteryLow;
     private final Handler periodic = new Handler(Looper.getMainLooper());
     private final Runnable refreshTick = new Runnable() {
+        /** Executes one visible-screen refresh cycle and schedules the next. */
         @Override public void run() {
             if (!visible || batteryLow) return;
             if (online && !model.busy()) model.loadDays(true);
@@ -52,13 +53,17 @@ public class ExplorerActivity extends ExplorerScreen {
         }
     };
     private final BroadcastReceiver batteryReceiver = new BroadcastReceiver() {
+        /** Applies the LOW/OKAY broadcast to the periodic-refresh policy. */
         @Override public void onReceive(Context context, Intent intent) {
             if (visible) setBatteryLow(Intent.ACTION_BATTERY_LOW.equals(intent.getAction()));
         }
     };
     private final ConnectivityManager.NetworkCallback networkCallback = new ConnectivityManager.NetworkCallback() {
+        /** Delivers network availability to the Activity's main thread. */
         @Override public void onAvailable(@NonNull Network network) { networkChanged(); }
+        /** Rechecks the active network after a connection is lost. */
         @Override public void onLost(@NonNull Network network) { networkChanged(); }
+        /** Waits for Internet validation, including capability changes after onAvailable. */
         @Override public void onCapabilitiesChanged(@NonNull Network network, @NonNull NetworkCapabilities caps) {
             networkChanged();
         }
@@ -91,10 +96,15 @@ public class ExplorerActivity extends ExplorerScreen {
             model.configure(ExplorerContract.place(saved), ExplorerContract.settings(saved));
             model.restoreFavorites(saved.getStringArrayList("favorites"));
         }
-        if (saved != null) scrollState = saved.getParcelable("scroll");
+        if (saved != null) {
+            restoredPosition = saved.getInt("scroll.position", 0);
+            restoredTop = saved.getInt("scroll.top", 0);
+        }
         String name = getIntent().getStringExtra(TimetableActivity.EXTRA_STUDENT_NAME);
         ((TextView) findViewById(R.id.exGreeting)).setText(getString(R.string.ex_greeting, name == null ? "" : name));
         list = findViewById(R.id.forecastList);
+        // Explicit position + offset avoids ListView's height-dependent Parcelable restoration.
+        list.setSaveEnabled(false);
         adapter = new ItemAdapter(model::isFavorite);
         list.setAdapter(adapter);
         list.setOnItemClickListener((parent, row, position, id) -> openDay(adapter.getItem(position)));
@@ -228,16 +238,21 @@ public class ExplorerActivity extends ExplorerScreen {
         if (displayed != state.data) {
             displayed = state.data;
             adapter.submit(state.data, model.place(), model.settings());
-            if (scrollState != null && !state.data.isEmpty()) {
-                list.onRestoreInstanceState(scrollState);
-                scrollState = null;
+            if (restoredPosition >= 0 && !state.data.isEmpty()) {
+                final int position = Math.min(restoredPosition, state.data.size() - 1);
+                final int top = restoredTop;
+                restoredPosition = -1;
+                // Run after framework restoration and the new orientation's first layout.
+                list.post(() -> list.setSelectionFromTop(position, top));
             } else if (state.status == Status.SUCCESS) list.scheduleLayoutAnimation();
         }
         invalidateOptionsMenu();
     }
 
     @Override protected void onSaveInstanceState(@NonNull Bundle saved) {
-        saved.putParcelable("scroll", list.onSaveInstanceState());
+        saved.putInt("scroll.position", list.getFirstVisiblePosition());
+        View first = list.getChildAt(0);
+        saved.putInt("scroll.top", first == null ? 0 : first.getTop());
         saved.putStringArrayList("favorites", model.favorites());
         ExplorerContract.write(saved, model.place(), model.settings());
         super.onSaveInstanceState(saved);
