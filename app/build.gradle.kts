@@ -9,7 +9,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "pt.upt.studenthub"
+        applicationId = "pt.upt.studenthub.a52010"
         minSdk = 24
         targetSdk = 37
         versionCode = 1
@@ -32,7 +32,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.activity.ktx)
     implementation(libs.appcompat)
     implementation(libs.constraintlayout)
     implementation(libs.material)

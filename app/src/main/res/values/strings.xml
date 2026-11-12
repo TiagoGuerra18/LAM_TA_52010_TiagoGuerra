@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">StudentHub1</string>
+    <string name="app_name">UPT Student Hub</string>
     <string name="tvIntroducao">Bem-vindo ao UPT Student Hub</string>
     <string name="ettIntroducaoNome">Nome do estudante</string>
     <string name="btnLogin">Abrir o meu horário</string>
@@ -14,7 +14,7 @@
     <string name="status_done">Sincronização concluída: %1$d aulas</string>
     <string name="status_cancelled">Sincronização cancelada</string>
     <string name="about_title">Sobre</string>
-    <string name="about_message">UPT Student Hub — Modules 1–2\nLaboratório de Aplicações Móveis — Week 7</string>
+    <string name="about_message">UPT Student Hub — Modules 1–3\nTiago Guerra · 52010\nLaboratório de Aplicações Móveis\nV1 — Previsão semanal\nDados meteorológicos: Open-Meteo.com</string>
     <string name="ok">OK</string>
     <string name="error_name_required">Introduz o teu nome</string>
     <string name="menu_about">Sobre</string>
