@@ -8,31 +8,36 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
+/** Small GET client shared by the weather and Explorer modules. */
 public final class HttpClient {
   static final int TIMEOUT_MS = 10_000;
 
   // Impede a criação de instâncias desta classe.
   private HttpClient() {}
 
+  /** Carries the HTTP status without exposing server response bodies to the UI. */
   public static final class HttpStatusException extends IOException {
     public final int code;
 
-    // Guarda o código HTTP recebido.
+    /** Creates an HTTP error with the received status code. */
     public HttpStatusException(int code) {
       super("HTTP " + code);
       this.code = code;
     }
   }
 
-  // Executa o GET e fecha os recursos da ligação.
+  /** Executes a UTF-8 GET with bounded timeouts and cooperative cancellation. */
   public static String get(String url) throws IOException {
+    checkInterrupted();
     HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
     try {
       conn.setRequestMethod("GET");
       conn.setConnectTimeout(TIMEOUT_MS);
       conn.setReadTimeout(TIMEOUT_MS);
       conn.setRequestProperty("Accept", "application/json");
+      checkInterrupted();
       int code = conn.getResponseCode();
+      checkInterrupted();
       if (code != HttpURLConnection.HTTP_OK) {
         throw new HttpStatusException(code);
       }
@@ -42,15 +47,19 @@ public final class HttpClient {
               new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
         String line;
         while ((line = reader.readLine()) != null) {
-          if (Thread.currentThread().isInterrupted()) {
-            throw new InterruptedIOException("Request cancelled");
-          }
+          checkInterrupted();
           body.append(line);
+          if (body.length() > 2_000_000) throw new IOException("Response too large");
         }
       }
+      checkInterrupted();
       return body.toString();
     } finally {
       conn.disconnect();
     }
+  }
+
+  private static void checkInterrupted() throws InterruptedIOException {
+    if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException("Request cancelled");
   }
 }
